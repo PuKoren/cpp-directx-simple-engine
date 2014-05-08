@@ -138,8 +138,6 @@ HRESULT InitDevice()
     UINT width = rc.right - rc.left;
     UINT height = rc.bottom - rc.top;
 
-	cam.SetViewport(rc);
-
     UINT createDeviceFlags = 0;
 #ifdef _DEBUG
     createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
@@ -277,7 +275,10 @@ HRESULT InitDevice()
     if(FAILED(hr))
         return hr;
 		*/
-    // Initialize the world matrices
+    
+	cam.SetViewport(width, height);
+
+	// Initialize the world matrices
     //g_World = XMMatrixIdentity();
 
     // Initialize the view matrix
@@ -292,7 +293,7 @@ HRESULT InitDevice()
     //g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f);
 
     //g_BatchEffect->SetProjection(g_Projection);
-
+		
     return S_OK;
 }
 

@@ -6,7 +6,7 @@ class Camera{
 public:
 	Camera();
 	~Camera();
-	void SetViewport(RECT p_viewPort);
+	void SetViewport(UINT p_width, UINT p_height);
 	void Update(float delta);
 
 	DirectX::XMMATRIX g_World;

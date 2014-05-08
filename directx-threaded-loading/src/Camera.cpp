@@ -10,9 +10,8 @@ Camera::Camera(){
 	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, 800/600, 0.01f, 100.0f);
 }
 
-void Camera::SetViewport(RECT p_viewPort){
-	m_viewPort = p_viewPort;
-	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, m_viewPort.right - m_viewPort.left / m_viewPort.bottom - m_viewPort.top, 0.01f, 100.0f);
+void Camera::SetViewport(UINT p_width, UINT p_height){
+	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, p_width / (FLOAT)p_height, 0.01f, 100.0f);
 }
 
 Camera::~Camera(){
