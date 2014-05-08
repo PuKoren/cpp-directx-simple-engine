@@ -15,6 +15,7 @@
 #include "SpriteFont.h"
 #include "VertexTypes.h"
 
+#include "Camera.h"
 #include "resource.h"
 
 using namespace DirectX;
@@ -44,16 +45,12 @@ std::unique_ptr<PrimitiveBatch<VertexPositionColor>>    g_Batch;
 std::unique_ptr<SpriteBatch>                            g_Sprites;
 std::unique_ptr<SpriteFont>                             g_Font;*/
 
-XMMATRIX                            g_World;
-XMMATRIX                            g_View;
-XMMATRIX                            g_Projection;
-
-
 HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow);
 HRESULT InitDevice();
 void CleanupDevice();
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 void Render();
+Camera cam;
 
 
 //--------------------------------------------------------------------------------------
@@ -119,6 +116,7 @@ HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow)
     g_hWnd = CreateWindow(L"SampleWindowClass", L"DirectXTK Threaded Loading", WS_OVERLAPPEDWINDOW,
                            CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
                            nullptr);
+
     if(!g_hWnd)
         return E_FAIL;
 
@@ -139,6 +137,8 @@ HRESULT InitDevice()
     GetClientRect(g_hWnd, &rc);
     UINT width = rc.right - rc.left;
     UINT height = rc.bottom - rc.top;
+
+	cam.SetViewport(rc);
 
     UINT createDeviceFlags = 0;
 #ifdef _DEBUG
@@ -278,18 +278,18 @@ HRESULT InitDevice()
         return hr;
 		*/
     // Initialize the world matrices
-    g_World = XMMatrixIdentity();
+    //g_World = XMMatrixIdentity();
 
     // Initialize the view matrix
-    XMVECTOR Eye = XMVectorSet(0.0f, 0.0f, -6.0f, 0.0f);
+    /*XMVECTOR Eye = XMVectorSet(0.0f, 0.0f, -6.0f, 0.0f);
     XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
     XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    g_View = XMMatrixLookAtLH(Eye, At, Up);
+    g_View = XMMatrixLookAtLH(Eye, At, Up);*/
 
     //g_BatchEffect->SetView(g_View);
 
     // Initialize the projection matrix
-    g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f);
+    //g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f);
 
     //g_BatchEffect->SetProjection(g_Projection);
 
@@ -408,8 +408,9 @@ void Render()
         dwTimeLast = dwTimeCur;
     }
 
+	cam.Update(t);
     // Rotate cube around the origin
-    g_World = XMMatrixRotationY(t);
+    //g_World = XMMatrixRotationY(t);
 
     //
     // Clear the back buffer
@@ -421,8 +422,8 @@ void Render()
     //
     g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	XMMATRIX local = XMMatrixMultiply(g_World, XMMatrixTranslation(-2.f, -2.f, 4.f));
-	g_Shape->Draw(local, g_View, g_Projection, Colors::White, g_pTextureRV1);
+	XMMATRIX local = XMMatrixMultiply(cam.g_World, XMMatrixTranslation(-2.f, -2.f, 4.f));
+	g_Shape->Draw(local, cam.g_View, cam.g_Projection, Colors::White, g_pTextureRV1);
 
     // Draw procedurally generated dynamic grid
 	/*
@@ -438,8 +439,6 @@ void Render()
     g_Sprites->End();
 
     // Draw 3D object
-    
-    
 
     XMVECTOR qid = XMQuaternionIdentity();
     const XMVECTORF32 scale = { 0.01f, 0.01f, 0.01f};
