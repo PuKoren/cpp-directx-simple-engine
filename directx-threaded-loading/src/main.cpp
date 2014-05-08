@@ -36,11 +36,11 @@ ID3D11ShaderResourceView*           g_pTextureRV1 = nullptr;
 //ID3D11ShaderResourceView*           g_pTextureRV2 = nullptr;
 ID3D11InputLayout*                  g_pBatchInputLayout = nullptr;
 
-std::unique_ptr<CommonStates>                           g_States;
+//std::unique_ptr<CommonStates>                           g_States;
 //std::unique_ptr<BasicEffect>                            g_BatchEffect;
 std::unique_ptr<EffectFactory>                          g_FXFactory;
 std::unique_ptr<GeometricPrimitive>                     g_Shape;
-std::unique_ptr<Model>                                  g_Model;
+//std::unique_ptr<Model>                                  g_Model;
 /*
 
 std::unique_ptr<PrimitiveBatch<VertexPositionColor>>    g_Batch;
@@ -53,6 +53,7 @@ void CleanupDevice();
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 void Render();
 GameEngine::Camera cam;
+GameEngine::GraphicObject* model;
 
 //--------------------------------------------------------------------------------------
 // Entry point to the program. Initializes everything and goes into a message processing 
@@ -239,7 +240,7 @@ HRESULT InitDevice()
     // Create DirectXTK objects
 	g_Shape = GeometricPrimitive::CreateTeapot(g_pImmediateContext, 4.f, 8, false);
 	g_FXFactory.reset(new EffectFactory(g_pd3dDevice));
-	g_States.reset(new CommonStates(g_pd3dDevice));
+	//g_States.reset(new CommonStates(g_pd3dDevice));
 	/*
     
     g_Sprites.reset(new SpriteBatch(g_pImmediateContext));
@@ -279,7 +280,8 @@ HRESULT InitDevice()
         return hr;
 		*/
 
-	g_Model = Model::CreateFromSDKMESH(g_pd3dDevice, L"tiny.sdkmesh", *g_FXFactory, true);
+	model = new GameEngine::GraphicObject(g_pd3dDevice, g_pImmediateContext, L"Tiny_skin.dds", L"tiny.sdkmesh");
+	//g_Model = Model::CreateFromSDKMESH(g_pd3dDevice, L"tiny.sdkmesh", *g_FXFactory, true);
     hr = CreateDDSTextureFromFile(g_pd3dDevice, L"seafloor.dds", nullptr, &g_pTextureRV1);
 	cam.SetViewport(width, height);
 
@@ -416,6 +418,7 @@ void Render()
     }
 
 	cam.Update(t);
+	model->Update(t);
     // Rotate cube around the origin
     //g_World = XMMatrixRotationY(t);
 
@@ -457,6 +460,8 @@ void Render()
     //
     // Present our back buffer to our front buffer
     //
-	g_Model->Draw(g_pImmediateContext, *g_States, local, cam.g_View, cam.g_Projection);
+	//g_Model->Draw(g_pImmediateContext, *g_States, local, cam.g_View, cam.g_Projection);
+
+	model->Draw(&cam);
     g_pSwapChain->Present(0, 0);
 }
