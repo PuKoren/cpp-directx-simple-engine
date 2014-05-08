@@ -14,12 +14,6 @@ namespace GameEngine{
 			MOVE_FORWARD = 0x20,
 			MOVE_BACKWARD = 0x40
 		};
-
-		struct pos{
-			float x;
-			float y;
-			float z;
-		};
 	}
 
 	class Camera{
@@ -30,6 +24,7 @@ namespace GameEngine{
 		bool Input(UINT message, WPARAM wParam);
 	
 		void Update(float delta);
+		void SetSpeed(float p_speed);
 		void SetFieldOfView(float radians);
 		void SetLookAt(float x, float y, float z);
 		void SetPosition(float x, float y, float z);
@@ -38,12 +33,13 @@ namespace GameEngine{
 		DirectX::XMMATRIX g_World;
 		DirectX::XMMATRIX g_View;
 		DirectX::XMMATRIX g_Projection;
+
 	private:
 		DirectX::XMVECTOR Eye;
 		DirectX::XMVECTOR At;
 		DirectX::XMVECTOR Up;
 
 		DWORD state;
-		CameraState::pos pos;
+		float m_speed;
 	};
 }

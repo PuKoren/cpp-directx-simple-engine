@@ -5,17 +5,14 @@ using namespace GameEngine;
 Camera::Camera(){
 	g_World = XMMatrixIdentity();
 	Eye = XMVectorSet(0.0f, 0.0f, -6.0f, 0.0f);
-    At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+    At = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
     Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
     g_View = XMMatrixLookAtLH(Eye, At, Up);
 	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, 800/600, 0.01f, 100.0f);
 
-	state = CameraState::NONE;
-	pos.x = 0.f;
-	pos.y = 0.f;
-	pos.z = -6.f;
+	m_speed = 0.001f;
 
-	g_View = XMMatrixLookAtLH(Eye, At, Up);
+	state = CameraState::NONE;
 }
 
 Camera::~Camera(){
@@ -72,26 +69,38 @@ bool Camera::Input(UINT message, WPARAM wParam){
 	return false;
 }
 
+void Camera::SetSpeed(float p_speed){
+	m_speed = m_speed;
+}
+
 void Camera::Update(float delta){
-	
-	CameraState::pos prevPos = pos;
+	DirectX::XMVECTOR command;
+	command.m128_f32[0] = 0.f;command.m128_f32[1] = 0.f;command.m128_f32[2] = 0.f;command.m128_f32[3] = 0.f;
 
 	if((state & CameraState::MOVE_LEFT) == CameraState::MOVE_LEFT){
-		pos.x -= 0.001f * delta;
-	}else if((state & CameraState::MOVE_RIGHT) == CameraState::MOVE_RIGHT){
-		pos.x += 0.001f * delta;
-	}else if((state & CameraState::MOVE_UP) == CameraState::MOVE_UP){
-		pos.y += 0.001f * delta;
-	}else if((state & CameraState::MOVE_DOWN) == CameraState::MOVE_DOWN){
-		pos.y -= 0.001f * delta;
-	}else if((state & CameraState::MOVE_FORWARD) == CameraState::MOVE_FORWARD){
-		pos.z += 0.001f * delta;
-	}else if((state & CameraState::MOVE_BACKWARD) == CameraState::MOVE_BACKWARD){
-		pos.z -= 0.001f * delta;
+		command.m128_f32[0] -= m_speed * delta;
+	}
+	if((state & CameraState::MOVE_RIGHT) == CameraState::MOVE_RIGHT){
+		command.m128_f32[0] += m_speed * delta;
+	}
+	if((state & CameraState::MOVE_UP) == CameraState::MOVE_UP){
+		command.m128_f32[1] += m_speed * delta;
+	}
+	if((state & CameraState::MOVE_DOWN) == CameraState::MOVE_DOWN){
+		command.m128_f32[1] -= m_speed * delta;
+	}
+	if((state & CameraState::MOVE_FORWARD) == CameraState::MOVE_FORWARD){
+		command.m128_f32[2] += m_speed * delta;
+	}
+	if((state & CameraState::MOVE_BACKWARD) == CameraState::MOVE_BACKWARD){
+		command.m128_f32[2] -= m_speed * delta;
 	}
 
-	if(prevPos.x != pos.x || prevPos.y != pos.y || prevPos.z != pos.z){
-		Eye = XMVectorSet(pos.x, pos.y, pos.z, 0.0f);
+	if(command.m128_f32[0] != 0.f || command.m128_f32[1] != 0.f || command.m128_f32[2] != 0.f){
+		Eye.m128_f32[0] += command.m128_f32[0];
+		Eye.m128_f32[1] += command.m128_f32[1];
+		Eye.m128_f32[2] += command.m128_f32[2];
+
 		g_View = XMMatrixLookAtLH(Eye, At, Up);
 	}
 }
