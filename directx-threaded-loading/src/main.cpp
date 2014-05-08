@@ -50,7 +50,7 @@ HRESULT InitDevice();
 void CleanupDevice();
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 void Render();
-Camera cam;
+GameEngine::Camera cam;
 
 //--------------------------------------------------------------------------------------
 // Entry point to the program. Initializes everything and goes into a message processing 
@@ -326,19 +326,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     PAINTSTRUCT ps;
     HDC hdc;
 
-    switch(message)
-    {
-        case WM_PAINT:
-            hdc = BeginPaint(hWnd, &ps);
-            EndPaint(hWnd, &ps);
-            break;
-
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            break;
-        default:
-            return DefWindowProc(hWnd, message, wParam, lParam);
-    }
+	if(!cam.Input(message, wParam)){
+		switch(message){
+			case WM_PAINT:
+				hdc = BeginPaint(hWnd, &ps);
+				EndPaint(hWnd, &ps);
+				break;
+			case WM_DESTROY:
+				PostQuitMessage(0);
+				break;
+			default:
+				return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+	}
 
     return 0;
 }
