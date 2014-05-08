@@ -10,14 +10,24 @@ Camera::Camera(){
 	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, 800/600, 0.01f, 100.0f);
 }
 
-void Camera::SetViewport(UINT p_width, UINT p_height){
-	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, p_width / (FLOAT)p_height, 0.01f, 100.0f);
-}
-
 Camera::~Camera(){
 
 }
 
 void Camera::Update(float delta){
 	g_World = XMMatrixRotationY(delta);
+}
+
+void Camera::SetViewport(UINT p_width, UINT p_height){
+	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, p_width / (FLOAT)p_height, 0.01f, 100.0f);
+}
+
+void Camera::SetLookAt(float x, float y, float z){
+	At = XMVectorSet(x, y, z, 0.0f);
+	g_View = XMMatrixLookAtLH(Eye, At, Up);
+}
+
+void Camera::SetPosition(float x, float y, float z){
+	Eye = XMVectorSet(x, y, z, 0.0f);
+	g_View = XMMatrixLookAtLH(Eye, At, Up);
 }

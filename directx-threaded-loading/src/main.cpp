@@ -32,7 +32,7 @@ ID3D11Texture2D*                    g_pDepthStencil = nullptr;
 ID3D11DepthStencilView*             g_pDepthStencilView = nullptr;
 
 ID3D11ShaderResourceView*           g_pTextureRV1 = nullptr;
-ID3D11ShaderResourceView*           g_pTextureRV2 = nullptr;
+//ID3D11ShaderResourceView*           g_pTextureRV2 = nullptr;
 ID3D11InputLayout*                  g_pBatchInputLayout = nullptr;
 
 //std::unique_ptr<CommonStates>                           g_States;
@@ -51,7 +51,6 @@ void CleanupDevice();
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 void Render();
 Camera cam;
-
 
 //--------------------------------------------------------------------------------------
 // Entry point to the program. Initializes everything and goes into a message processing 
@@ -308,7 +307,7 @@ void CleanupDevice()
     if (g_pBatchInputLayout) g_pBatchInputLayout->Release();
 
     if(g_pTextureRV1) g_pTextureRV1->Release();
-    if(g_pTextureRV2) g_pTextureRV2->Release();
+    //if(g_pTextureRV2) g_pTextureRV2->Release();
 
     if(g_pDepthStencilView) g_pDepthStencilView->Release();
     if(g_pDepthStencil) g_pDepthStencil->Release();
@@ -348,6 +347,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 //--------------------------------------------------------------------------------------
 // Render a grid using PrimitiveBatch
 //--------------------------------------------------------------------------------------
+/*
 void DrawGrid(PrimitiveBatch<VertexPositionColor>& batch, FXMVECTOR xAxis, FXMVECTOR yAxis, FXMVECTOR origin, size_t xdivs, size_t ydivs, GXMVECTOR color)
 {
     //g_BatchEffect->Apply(g_pImmediateContext);
@@ -384,7 +384,7 @@ void DrawGrid(PrimitiveBatch<VertexPositionColor>& batch, FXMVECTOR xAxis, FXMVE
     }
 
     //g_Batch->End();
-}
+}*/
 
 
 //--------------------------------------------------------------------------------------
