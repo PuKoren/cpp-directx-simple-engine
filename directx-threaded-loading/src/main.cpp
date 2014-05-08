@@ -16,6 +16,7 @@
 #include "VertexTypes.h"
 
 #include "Camera.h"
+#include "GraphicObject.h"
 #include "resource.h"
 
 using namespace DirectX;
@@ -35,12 +36,13 @@ ID3D11ShaderResourceView*           g_pTextureRV1 = nullptr;
 //ID3D11ShaderResourceView*           g_pTextureRV2 = nullptr;
 ID3D11InputLayout*                  g_pBatchInputLayout = nullptr;
 
-//std::unique_ptr<CommonStates>                           g_States;
+std::unique_ptr<CommonStates>                           g_States;
 //std::unique_ptr<BasicEffect>                            g_BatchEffect;
-//std::unique_ptr<EffectFactory>                          g_FXFactory;
+std::unique_ptr<EffectFactory>                          g_FXFactory;
 std::unique_ptr<GeometricPrimitive>                     g_Shape;
-/*
 std::unique_ptr<Model>                                  g_Model;
+/*
+
 std::unique_ptr<PrimitiveBatch<VertexPositionColor>>    g_Batch;
 std::unique_ptr<SpriteBatch>                            g_Sprites;
 std::unique_ptr<SpriteFont>                             g_Font;*/
@@ -236,10 +238,12 @@ HRESULT InitDevice()
 
     // Create DirectXTK objects
 	g_Shape = GeometricPrimitive::CreateTeapot(g_pImmediateContext, 4.f, 8, false);
+	g_FXFactory.reset(new EffectFactory(g_pd3dDevice));
+	g_States.reset(new CommonStates(g_pd3dDevice));
 	/*
-    g_States.reset(new CommonStates(g_pd3dDevice));
+    
     g_Sprites.reset(new SpriteBatch(g_pImmediateContext));
-    g_FXFactory.reset(new EffectFactory(g_pd3dDevice));
+   
     g_Batch.reset(new PrimitiveBatch<VertexPositionColor>(g_pImmediateContext));
 
     g_BatchEffect.reset(new BasicEffect(g_pd3dDevice));
@@ -263,10 +267,10 @@ HRESULT InitDevice()
 
     
 
-    g_Model = Model::CreateFromSDKMESH(g_pd3dDevice, L"tiny.sdkmesh", *g_FXFactory, true);
+    
 
     // Load the Texture
-    hr = CreateDDSTextureFromFile(g_pd3dDevice, L"seafloor.dds", nullptr, &g_pTextureRV1);
+    
     if(FAILED(hr))
         return hr;
 
@@ -274,7 +278,9 @@ HRESULT InitDevice()
     if(FAILED(hr))
         return hr;
 		*/
-    
+
+	g_Model = Model::CreateFromSDKMESH(g_pd3dDevice, L"tiny.sdkmesh", *g_FXFactory, true);
+    hr = CreateDDSTextureFromFile(g_pd3dDevice, L"seafloor.dds", nullptr, &g_pTextureRV1);
 	cam.SetViewport(width, height);
 
 	// Initialize the world matrices
@@ -446,10 +452,11 @@ void Render()
     const XMVECTORF32 translate = { 3.f, -2.f, 4.f };
     XMVECTOR rotate = XMQuaternionRotationRollPitchYaw(0, XM_PI/2.f, XM_PI/2.f);
     local = XMMatrixMultiply(g_World, XMMatrixTransformation(g_XMZero, qid, scale, g_XMZero, rotate, translate));
-    g_Model->Draw(g_pImmediateContext, *g_States, local, g_View, g_Projection);
+    
 	*/
     //
     // Present our back buffer to our front buffer
     //
+	g_Model->Draw(g_pImmediateContext, *g_States, local, cam.g_View, cam.g_Projection);
     g_pSwapChain->Present(0, 0);
 }
