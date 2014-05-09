@@ -28,7 +28,7 @@ namespace GameEngine{
 		void SetFieldOfView(float radians);
 		void SetLookAt(float x, float y, float z);
 		void SetPosition(float x, float y, float z);
-		void SetViewport(UINT p_width, UINT p_height);
+		void SetViewport(UINT p_width, UINT p_height, float near, float far);
 
 		DirectX::XMMATRIX g_World;
 		DirectX::XMMATRIX g_View;

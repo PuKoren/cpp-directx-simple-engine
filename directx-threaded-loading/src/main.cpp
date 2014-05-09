@@ -283,7 +283,7 @@ HRESULT InitDevice()
 	model = new GameEngine::GraphicObject(g_pd3dDevice, g_pImmediateContext, L"Tiny_skin.dds", L"tiny.sdkmesh");
 	//g_Model = Model::CreateFromSDKMESH(g_pd3dDevice, L"tiny.sdkmesh", *g_FXFactory, true);
     hr = CreateDDSTextureFromFile(g_pd3dDevice, L"seafloor.dds", nullptr, &g_pTextureRV1);
-	cam.SetViewport(width, height);
+	cam.SetViewport(width, height, 0.01f, 100.0f);
 
 	// Initialize the world matrices
     //g_World = XMMatrixIdentity();

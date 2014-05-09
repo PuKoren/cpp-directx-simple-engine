@@ -105,8 +105,8 @@ void Camera::Update(float delta){
 	}
 }
 
-void Camera::SetViewport(UINT p_width, UINT p_height){
-	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, p_width / (FLOAT)p_height, 0.01f, 100.0f);
+void Camera::SetViewport(UINT p_width, UINT p_height, float near, float far){
+	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, p_width / (FLOAT)p_height, near, far);
 }
 
 void Camera::SetLookAt(float x, float y, float z){
