@@ -52,6 +52,8 @@ HRESULT InitDevice();
 void CleanupDevice();
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 void Render();
+void Update(float dt);
+void Draw();
 GameEngine::Camera cam;
 GameEngine::GraphicObject* model;
 
@@ -395,9 +397,28 @@ void DrawGrid(PrimitiveBatch<VertexPositionColor>& batch, FXMVECTOR xAxis, FXMVE
 }*/
 
 
+void Update(float dt){
+	cam.Update(dt);
+	model->Update(dt);
+}
+
+void Draw(){
+    g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
+    g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	XMMATRIX local = XMMatrixMultiply(cam.g_World, XMMatrixTranslation(-2.f, -2.f, 4.f));
+	g_Shape->Draw(local, cam.g_View, cam.g_Projection, Colors::White, g_pTextureRV1);
+
+	model->Draw(&cam);
+    g_pSwapChain->Present(0, 0);
+}
+
+const float MIN_DT_UPDATE = 0.0050f;
+static float current_dt  = 0;
 //--------------------------------------------------------------------------------------
 // Render a frame
 //--------------------------------------------------------------------------------------
+#include <iostream>
 void Render()
 {
     // Update our time
@@ -405,6 +426,7 @@ void Render()
     static float dt = 0.f;
     if(g_driverType == D3D_DRIVER_TYPE_REFERENCE){
         t += (float)XM_PI * 0.0125f;
+        current_dt += (float)XM_PI * 0.0125f;
     }
     else{
         static uint64_t dwTimeStart = 0;
@@ -415,25 +437,26 @@ void Render()
         t = (dwTimeCur - dwTimeStart) / 1000.0f;
         dt = (dwTimeCur - dwTimeLast) / 1000.0f;
         dwTimeLast = dwTimeCur;
+        current_dt += dt;
+    }
+    
+    while(current_dt > MIN_DT_UPDATE){
+        Update(MIN_DT_UPDATE);
+        current_dt -= MIN_DT_UPDATE;
     }
 
-	cam.Update(t);
-	model->Update(t);
+    Draw();
+
     // Rotate cube around the origin
     //g_World = XMMatrixRotationY(t);
 
     //
     // Clear the back buffer
     //
-    g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
 
     //
     // Clear the depth buffer to 1.0 (max depth)
     //
-    g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-	XMMATRIX local = XMMatrixMultiply(cam.g_World, XMMatrixTranslation(-2.f, -2.f, 4.f));
-	g_Shape->Draw(local, cam.g_View, cam.g_Projection, Colors::White, g_pTextureRV1);
 
     // Draw procedurally generated dynamic grid
 	/*
@@ -462,6 +485,4 @@ void Render()
     //
 	//g_Model->Draw(g_pImmediateContext, *g_States, local, cam.g_View, cam.g_Projection);
 
-	model->Draw(&cam);
-    g_pSwapChain->Present(0, 0);
 }
