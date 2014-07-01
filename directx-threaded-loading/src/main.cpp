@@ -18,6 +18,7 @@
 #include "Camera.h"
 #include "GraphicObject.h"
 #include "resource.h"
+#include "ThreadPool.h"
 
 using namespace DirectX;
 
@@ -56,6 +57,8 @@ void Update(float dt);
 void Draw();
 GameEngine::Camera cam;
 GameEngine::GraphicObject* model;
+ThreadPool threadPool;
+std::vector<GameEngine::GraphicObject*> objList;
 
 //--------------------------------------------------------------------------------------
 // Entry point to the program. Initializes everything and goes into a message processing 
@@ -282,7 +285,7 @@ HRESULT InitDevice()
         return hr;
 		*/
 
-	model = new GameEngine::GraphicObject(g_pd3dDevice, g_pImmediateContext, L"Tiny_skin.dds", L"tiny.sdkmesh");
+    threadPool.getJobStack()->addJob(new GameEngine::GraphicObject(g_pd3dDevice, g_pImmediateContext, L"Tiny_skin.dds", L"tiny.sdkmesh", &objList));
 	//g_Model = Model::CreateFromSDKMESH(g_pd3dDevice, L"tiny.sdkmesh", *g_FXFactory, true);
     hr = CreateDDSTextureFromFile(g_pd3dDevice, L"seafloor.dds", nullptr, &g_pTextureRV1);
 	cam.SetViewport(width, height, 0.01f, 100.0f);
@@ -302,7 +305,8 @@ HRESULT InitDevice()
     //g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f);
 
     //g_BatchEffect->SetProjection(g_Projection);
-		
+
+    threadPool.init();
     return S_OK;
 }
 
@@ -325,6 +329,13 @@ void CleanupDevice()
     if(g_pSwapChain) g_pSwapChain->Release();
     if(g_pImmediateContext) g_pImmediateContext->Release();
     if(g_pd3dDevice) g_pd3dDevice->Release();
+
+    for(unsigned int i = 0; i < objList.size(); i++){
+        delete objList[i];
+    }
+    objList.clear();
+
+    threadPool.release();
 }
 
 
@@ -338,6 +349,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	if(!cam.Input(message, wParam)){
 		switch(message){
+            case WM_KEYDOWN:
+			    switch(wParam){
+                    case VK_INSERT:
+                        threadPool.getJobStack()->addJob(new GameEngine::GraphicObject(g_pd3dDevice, g_pImmediateContext, L"Tiny_skin.dds", L"tiny.sdkmesh", &objList));
+                    break;
+                }
+                break;
 			case WM_PAINT:
 				hdc = BeginPaint(hWnd, &ps);
 				EndPaint(hWnd, &ps);
@@ -399,7 +417,10 @@ void DrawGrid(PrimitiveBatch<VertexPositionColor>& batch, FXMVECTOR xAxis, FXMVE
 
 void Update(float dt){
 	cam.Update(dt);
-	model->Update(dt);
+
+    for(unsigned int i = 0; i < objList.size(); i++){
+        objList[i]->Update(dt);
+    }
 }
 
 void Draw(){
@@ -409,7 +430,9 @@ void Draw(){
 	XMMATRIX local = XMMatrixMultiply(cam.g_World, XMMatrixTranslation(-2.f, -2.f, 4.f));
 	g_Shape->Draw(local, cam.g_View, cam.g_Projection, Colors::White, g_pTextureRV1);
 
-	model->Draw(&cam);
+	for(unsigned int i = 0; i < objList.size(); i++){
+        objList[i]->Draw(&cam);
+    }
     g_pSwapChain->Present(0, 0);
 }
 
